@@ -54,7 +54,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("CircleBase")
+            .navigationTitle("HYC")
             .onAppear { ble.start() }
         }
     }
