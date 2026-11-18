@@ -1,0 +1,6 @@
+# Xcode 用户态与构建产物（工程文件本身 project.pbxproj / xcscheme 必须入库）
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.xcuserstate

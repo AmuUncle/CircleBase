@@ -1,0 +1,311 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1A00000000000000000000C1 /* CircleBaseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B1 /* CircleBaseApp.swift */; };
+		1A00000000000000000000C2 /* BleLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B2 /* BleLink.swift */; };
+		1A00000000000000000000C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B3 /* ContentView.swift */; };
+		1A00000000000000000000C4 /* PhoneClockSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B4 /* PhoneClockSync.swift */; };
+		1A00000000000000000000C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B6 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1A00000000000000000000A8 /* CircleBase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CircleBase.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A00000000000000000000B1 /* CircleBaseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleBaseApp.swift; sourceTree = "<group>"; };
+		1A00000000000000000000B2 /* BleLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BleLink.swift; sourceTree = "<group>"; };
+		1A00000000000000000000B3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1A00000000000000000000B4 /* PhoneClockSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneClockSync.swift; sourceTree = "<group>"; };
+		1A00000000000000000000B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A00000000000000000000B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1A00000000000000000000A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1A00000000000000000000A1 = {
+			isa = PBXGroup;
+			children = (
+				1A00000000000000000000A2 /* CircleBase */,
+				1A00000000000000000000A3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1A00000000000000000000A2 /* CircleBase */ = {
+			isa = PBXGroup;
+			children = (
+				1A00000000000000000000B1 /* CircleBaseApp.swift */,
+				1A00000000000000000000B7 /* Transport */,
+				1A00000000000000000000B8 /* UI */,
+				1A00000000000000000000B9 /* Model */,
+				1A00000000000000000000B6 /* Assets.xcassets */,
+				1A00000000000000000000B5 /* Info.plist */,
+			);
+			path = CircleBase;
+			sourceTree = "<group>";
+		};
+		1A00000000000000000000B7 /* Transport */ = {
+			isa = PBXGroup;
+			children = (
+				1A00000000000000000000B2 /* BleLink.swift */,
+				1A00000000000000000000B4 /* PhoneClockSync.swift */,
+			);
+			path = Transport;
+			sourceTree = "<group>";
+		};
+		1A00000000000000000000B8 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				1A00000000000000000000B3 /* ContentView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		1A00000000000000000000B9 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		1A00000000000000000000A3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A00000000000000000000A8 /* CircleBase.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1A00000000000000000000A7 /* CircleBase */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A00000000000000000000AA /* Build configuration list for PBXNativeTarget "CircleBase" */;
+			buildPhases = (
+				1A00000000000000000000A5 /* Sources */,
+				1A00000000000000000000A4 /* Frameworks */,
+				1A00000000000000000000A6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CircleBase;
+			productName = CircleBase;
+			productReference = 1A00000000000000000000A8 /* CircleBase.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1A00000000000000000000A0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					1A00000000000000000000A7 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 1A00000000000000000000A9 /* Build configuration list for PBXProject "CircleBase" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = 1A00000000000000000000A1;
+			productRefGroup = 1A00000000000000000000A3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1A00000000000000000000A7 /* CircleBase */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1A00000000000000000000A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A00000000000000000000C5 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A00000000000000000000A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A00000000000000000000C1 /* CircleBaseApp.swift in Sources */,
+				1A00000000000000000000C2 /* BleLink.swift in Sources */,
+				1A00000000000000000000C3 /* ContentView.swift in Sources */,
+				1A00000000000000000000C4 /* PhoneClockSync.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1A00000000000000000000AB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1A00000000000000000000AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1A00000000000000000000AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CircleBase/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.circlebase.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		1A00000000000000000000AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CircleBase/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.circlebase.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1A00000000000000000000A9 /* Build configuration list for PBXProject "CircleBase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A00000000000000000000AB /* Debug */,
+				1A00000000000000000000AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A00000000000000000000AA /* Build configuration list for PBXNativeTarget "CircleBase" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A00000000000000000000AD /* Debug */,
+				1A00000000000000000000AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1A00000000000000000000A0 /* Project object */;
+}
