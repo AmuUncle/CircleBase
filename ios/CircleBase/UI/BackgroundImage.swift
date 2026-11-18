@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UIKit        /* UIImage / UIGraphicsImageRenderer：不依赖 SwiftUI 传递引入 */
 
 /// 背景图设置页（PLAN-007 §4.10）。
 ///
@@ -48,7 +49,10 @@ struct BackgroundImageView: View {
                         .foregroundStyle(.secondary)
                 }
                 PhotosPicker(selection: $pickerItem, matching: .images) {
-                    Label(source == nil ? "从相册选择图片" : "换一张", systemImage: "photo.on.rectangle.angled")
+                    /* 先接成 String 常量：直接写三元字面量会在 Label 的
+                       LocalizedStringKey / StringProtocol 两个重载之间报歧义 */
+                    let title = source == nil ? "从相册选择图片" : "换一张"
+                    Label(title, systemImage: "photo.on.rectangle.angled")
                 }
                 .disabled(xfer.isBusy)
                 if !pickError.isEmpty {
@@ -243,7 +247,7 @@ struct BackgroundImageView: View {
         cy = min(ih - cropSidePx / 2, max(cropSidePx / 2, cy))
         let src = CGRect(x: cx - cropSidePx / 2, y: cy - cropSidePx / 2,
                          width: cropSidePx, height: cropSidePx)
-        guard cropSidePx >= 1, src.x >= 0, src.y >= 0,
+        guard cropSidePx >= 1, src.minX >= 0, src.minY >= 0,
               src.maxX <= iw + 0.5, src.maxY <= ih + 0.5,
               let cropped = cg.cropping(to: src) else { return nil }
 

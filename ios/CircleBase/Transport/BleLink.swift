@@ -282,7 +282,9 @@ extension BleLink: CBPeripheralDelegate {
         drainWrites()
     }
 
-    func peripheralIsReadyToSendWriteWithoutResponse(_ peripheral: CBPeripheral) {
+    /// 无响应写入的缓冲腾空通知。新 SDK 已把这个委托方法改名为带参数标签的形式
+    ///（旧的 `peripheralIsReadyToSendWriteWithoutResponse(_:)` 不再被协议识别）。
+    func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         drainWrites()
     }
 
