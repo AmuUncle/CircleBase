@@ -5,6 +5,7 @@ import CoreBluetooth
 /// 除配对链路外零业务功能（见 PLAN-003 §3.5）。
 struct ContentView: View {
     @ObservedObject var ble = BleLink.shared
+    @ObservedObject var xfer = ImageTransfer.shared
 
     var body: some View {
         NavigationStack {
@@ -53,9 +54,39 @@ struct ContentView: View {
                         Button("重新搜索") { ble.rescan() }
                     }
                 }
+
+                // 背景图（PLAN-007）：选图 → 1:1 裁剪 → 压缩上传 → 板端固化
+                if ble.verified {
+                    Section("外观") {
+                        NavigationLink {
+                            BackgroundImageView()
+                        } label: {
+                            HStack {
+                                Label("背景图", systemImage: "photo.fill")
+                                Spacer()
+                                Text(bgSummary).font(.footnote).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
             }
             .navigationTitle("HYC")
             .onAppear { ble.start() }
+        }
+    }
+
+    /// 一行只读摘要：板上背图状态，取不到就写传输阶段。
+    private var bgSummary: String {
+        switch xfer.phase {
+        case .announcing, .sending(_), .waitingAck: return "传输中…"
+        case .clearing: return "移除中…"
+        case .failed(_): return "上次失败"
+        default: break
+        }
+        switch xfer.hasBackground {
+        case .some(true): return "已设置"
+        case .some(false): return "默认深色"
+        case .none: return "未查询"
         }
     }
 }

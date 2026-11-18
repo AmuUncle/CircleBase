@@ -12,6 +12,8 @@
 		1A00000000000000000000C3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B3 /* ContentView.swift */; };
 		1A00000000000000000000C4 /* PhoneClockSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B4 /* PhoneClockSync.swift */; };
 		1A00000000000000000000C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000B6 /* Assets.xcassets */; };
+		1A00000000000000000000CA /* ImageTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BA /* ImageTransfer.swift */; };
+		1A00000000000000000000CB /* BackgroundImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BB /* BackgroundImage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		1A00000000000000000000B4 /* PhoneClockSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneClockSync.swift; sourceTree = "<group>"; };
 		1A00000000000000000000B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A00000000000000000000B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1A00000000000000000000BA /* ImageTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTransfer.swift; sourceTree = "<group>"; };
+		1A00000000000000000000BB /* BackgroundImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundImage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				1A00000000000000000000B2 /* BleLink.swift */,
+				1A00000000000000000000BA /* ImageTransfer.swift */,
 				1A00000000000000000000B4 /* PhoneClockSync.swift */,
 			);
 			path = Transport;
@@ -69,6 +74,7 @@
 			isa = PBXGroup;
 			children = (
 				1A00000000000000000000B3 /* ContentView.swift */,
+				1A00000000000000000000BB /* BackgroundImage.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -162,6 +168,8 @@
 				1A00000000000000000000C2 /* BleLink.swift in Sources */,
 				1A00000000000000000000C3 /* ContentView.swift in Sources */,
 				1A00000000000000000000C4 /* PhoneClockSync.swift in Sources */,
+				1A00000000000000000000CA /* ImageTransfer.swift in Sources */,
+				1A00000000000000000000CB /* BackgroundImage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

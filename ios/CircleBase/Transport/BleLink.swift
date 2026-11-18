@@ -1,6 +1,20 @@
 import Foundation
 import CoreBluetooth
 
+/// RX 写队列里的一次写入（PLAN-007 §4.8）。
+/// bulk 分片中间片走无响应（吞吐），首/尾片走带响应（拿得到错误与整份落地的节拍）。
+struct BleWrite {
+    let data: Data
+    let withResponse: Bool
+    /// 归属标记（"bulk" = 背景图分片），供传输层只统计自己排的帧。
+    let tag: String?
+    init(_ data: Data, withResponse: Bool = true, tag: String? = nil) {
+        self.data = data
+        self.withResponse = withResponse
+        self.tag = tag
+    }
+}
+
 /// 连接状态（对应 BLE-PROTOCOL §3 App 侧状态表的本期子集）。
 enum CircleLinkState: String {
     case noBLE       = "本设备不支持蓝牙"
@@ -33,6 +47,8 @@ final class BleLink: NSObject, ObservableObject {
     @Published private(set) var devices: [CBPeripheral] = []
     @Published private(set) var connectedName = ""
     @Published private(set) var lastError = ""
+    /// 固件能力宣告（协议 §7：`CAP,<mod>,<ver>`，认证成功后逐条下发）。
+    @Published private(set) var caps: Set<String> = []
 
     var isConnected: Bool { peripheral?.state == .connected }
 
@@ -44,9 +60,12 @@ final class BleLink: NSObject, ObservableObject {
     private var helloSent = false
     private var wantReconnect = true
 
-    // RX 写队列（一次一片，靠 didWriteValueFor 推进）
-    private var writeQueue: [Data] = []
+    // RX 写队列（一次一片：带响应靠 didWriteValueFor 推进，无响应靠 canSendWriteWithoutResponse）
+    private var writeQueue: [BleWrite] = []
     private var writing = false
+    private var retryScheduled = false
+    /// 一次写入真正交给协议栈后的回调（ImageTransfer 用它算进度）。
+    var onWriteFinished: ((BleWrite) -> Void)?
 
     private override init() {
         super.init()
@@ -104,24 +123,61 @@ final class BleLink: NSObject, ObservableObject {
         helloSent = false
         verified = false
         writing = false
+        retryScheduled = false
+        caps.removeAll()
         writeQueue.removeAll()
+        ImageTransfer.shared.linkDied()
     }
 
     // MARK: - 发送
 
     /// 文字指令以 UTF-8 写入 RX（.withResponse，触发/依赖加密）。
-    private func send(_ command: String) {
+    func sendText(_ command: String) {
         guard let data = command.data(using: .utf8) else { return }
-        writeQueue.append(data)
+        enqueue([BleWrite(data, withResponse: true)])
+    }
+
+    /// 批量入队（bulk 分片由 ImageTransfer 一次性排好，保证顺序）。
+    func enqueue(_ writes: [BleWrite]) {
+        writeQueue.append(contentsOf: writes)
         drainWrites()
     }
 
+    /// 单帧可携带的净荷上限：ATT 单次写入上限再减 `'F'` 帧头 15 字节（协议 §6.3）。
+    func maxChunkBytes() -> Int {
+        guard let p = peripheral, p.state == .connected else { return 0 }
+        let mtu = p.maximumWriteValueLength(for: .withoutResponse)
+        return max(0, mtu - 15)
+    }
+
     private func drainWrites() {
-        guard !writing else { return }
         guard let p = peripheral, p.state == .connected, let rx = rx else { return }
-        guard let next = writeQueue.first else { return }
-        writing = true
-        p.writeValue(next, for: rx, type: .withResponse)
+        guard !writeQueue.isEmpty else { return }
+        // 带响应写入在飞：等 didWriteValueFor 回来再继续
+        if writing { return }
+
+        while let next = writeQueue.first {
+            if next.withResponse {
+                writing = true
+                p.writeValue(next.data, for: rx, type: .withResponse)
+                return                      // 完成回调里出队并继续
+            }
+            // 无响应：协议栈缓冲满时 canSendWriteWithoutResponse 转 false，退避等 ready 回调
+            guard p.canSendWriteWithoutResponse else { scheduleDrain(); return }
+            p.writeValue(next.data, for: rx, type: .withoutResponse)
+            writeQueue.removeFirst()
+            onWriteFinished?(next)
+        }
+    }
+
+    /// 20ms 退避重试（ready 回调正常会先到，这里只兜底某些机型不回调的情况）。
+    private func scheduleDrain() {
+        guard !retryScheduled else { return }
+        retryScheduled = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) { [weak self] in
+            self?.retryScheduled = false
+            self?.drainWrites()
+        }
     }
 
     /// 订阅完成 + RX 就绪后发首条 `#HELLO`（只发一次，触发系统配对）。
@@ -129,12 +185,12 @@ final class BleLink: NSObject, ObservableObject {
         guard !helloSent, txSubscribed, rx != nil, let p = peripheral, p.state == .connected else { return }
         helloSent = true
         state = .waitingPair
-        send("#HELLO")
+        sendText("#HELLO")
     }
 
     /// 校时（B 类：每次认证成功发一次）。
     private func syncClock() {
-        if let msg = PhoneClockSync.message() { send(msg) }
+        if let msg = PhoneClockSync.message() { sendText(msg) }
     }
 }
 
@@ -217,10 +273,16 @@ extension BleLink: CBPeripheralDelegate {
     }
 
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        // 弹出队首，继续发下一条
+        // 弹出队首（带响应写入的唯一推进点），继续发下一条
+        let done = writeQueue.first
         if !writeQueue.isEmpty { writeQueue.removeFirst() }
         writing = false
         if let error = error { lastError = "写入失败：\(error.localizedDescription)" }
+        if let done = done { onWriteFinished?(done) }
+        drainWrites()
+    }
+
+    func peripheralIsReadyToSendWriteWithoutResponse(_ peripheral: CBPeripheral) {
         drainWrites()
     }
 
@@ -237,13 +299,28 @@ extension BleLink: CBPeripheralDelegate {
 
     private func handleMessage(_ message: String) {
         // 认证完成回执（协议 §3：U,1 三轮补发，靠 verified 去重只处理首条）
-        guard message == "U,1" || message.hasPrefix("U,1,") || message.hasPrefix("U,1") else { return }
-        guard !verified else { return }
-        verified = true
-        state = .verified
-        if let id = peripheral?.identifier.uuidString {
-            UserDefaults.standard.set(id, forKey: defaultsKey)
+        if message == "U,1" || message.hasPrefix("U,1,") {
+            if !verified {
+                verified = true
+                state = .verified
+                if let id = peripheral?.identifier.uuidString {
+                    UserDefaults.standard.set(id, forKey: defaultsKey)
+                }
+                syncClock()
+            }
+            return
         }
-        syncClock()
+        // 能力宣告 CAP,<mod>,<ver>（协议 §7）
+        if message.hasPrefix("CAP,") {
+            let f = message.split(separator: ",")
+            if f.count >= 2 { caps.insert(String(f[1])) }
+            return
+        }
+        // 其余：K/N 通用回执 + #IMG* / #IMGS 背图类 → 交给 ImageTransfer 状态机
+        //（本类回调固定在 main 队列（CBCentralManager queue: .main），直接同步转交保序）
+        if message.hasPrefix("K,") || message.hasPrefix("N,")
+            || message.hasPrefix("#IMG") {
+            ImageTransfer.shared.handleBoardMessage(message)
+        }
     }
 }
