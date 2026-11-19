@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CircleBase · UI 设计预览（iOS 16 / 纯原生可落地）</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap">
+<style>
+  :root{
+    /* ===== 设计令牌（后续 SwiftUI Theme 一一对应） ===== */
+    --bg-page:#26282e;
+    --bg-phone:#17181c;
+    --card-1:#26282f;
+    --card-2:#2f323a;
+    --card-3:#383b44;
+    --stroke:rgba(255,255,255,.07);
+    --text-1:#f4f5f7;
+    --text-2:#a6adb9;
+    --text-3:#6f7682;
+    --accent:#4d8dff;
+    --accent-2:#7a5cf0;
+    --ok:#34d399;
+    --warn:#fbbf24;
+    --danger:#f87171;
+    --r-lg:24px; --r-md:18px; --r-sm:12px;
+    --shadow:0 18px 40px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg-page);color:var(--text-1);padding:40px 32px 80px;
+  }
+  .wrap{max-width:1280px;margin:0 auto}
+
+  /* ===== 页头 ===== */
+  .head{margin-bottom:28px}
+  .head .eyebrow{font-size:13px;color:var(--accent);letter-spacing:.12em;font-weight:600;text-transform:uppercase}
+  .head h1{font-size:30px;font-weight:700;margin:8px 0 10px}
+  .head p{color:var(--text-2);font-size:15px;line-height:1.7;max-width:760px}
+  .tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .tag{font-size:12.5px;color:var(--text-2);border:1px solid var(--stroke);background:var(--card-1);padding:6px 12px;border-radius:999px}
+  .tag b{color:var(--text-1)}
+
+  /* ===== 令牌区 ===== */
+  .section-title{font-size:18px;font-weight:600;margin:36px 0 16px;display:flex;align-items:center;gap:10px}
+  .section-title::before{content:"";width:4px;height:16px;border-radius:4px;background:var(--accent)}
+  .tokens{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .token{background:var(--card-1);border:1px solid var(--stroke);border-radius:var(--r-md);padding:14px}
+  .token .sw{height:44px;border-radius:12px;margin-bottom:10px;border:1px solid var(--stroke)}
+  .token .k{font-size:13px;font-weight:600}
+  .token .v{font-size:12px;color:var(--text-3);margin-top:3px;font-family:ui-monospace,Menlo,Consolas,monospace}
+
+  /* ===== 画廊 ===== */
+  .gallery{display:flex;gap:28px;flex-wrap:wrap;margin-top:8px}
+  .stage{display:flex;flex-direction:column;gap:12px}
+  .stage .label{font-size:13px;color:var(--text-2);padding-left:6px}
+  .stage .label b{color:var(--text-1)}
+
+  /* 手机框 */
+  .phone{
+    width:300px;height:640px;background:var(--bg-phone);border-radius:38px;
+    border:1px solid var(--stroke);box-shadow:var(--shadow);padding:20px 16px;
+    display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;
+  }
+  .phone::after{ /* 顶部状态栏 */
+    content:"9:41";position:absolute;top:12px;left:24px;font-size:12px;color:var(--text-2);font-weight:600;
+  }
+  .statusbar-right{position:absolute;top:12px;right:22px;display:flex;gap:6px;align-items:center}
+  .statusbar-right span{width:4px;height:8px;background:var(--text-2);border-radius:1px}
+  .statusbar-right span:nth-child(2){height:11px}
+  .statusbar-right span:nth-child(3){height:14px}
+
+  /* 通用卡片 */
+  .card{background:var(--card-1);border:1px solid var(--stroke);border-radius:var(--r-lg);padding:18px}
+  .card-soft{background:var(--card-2);border:1px solid var(--stroke);border-radius:var(--r-md);padding:14px}
+  .row{display:flex;align-items:center;gap:12px}
+  .spacer{flex:1}
+  .muted{color:var(--text-2);font-size:13px}
+  .faint{color:var(--text-3);font-size:12px}
+
+  /* 首页问候 */
+  .greet{padding-top:18px}
+  .greet .hi{font-size:13px;color:var(--text-2)}
+  .greet .name{font-size:24px;font-weight:700;margin-top:2px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+
+  /* 状态英雄卡 */
+  .hero{position:relative;overflow:hidden}
+  .hero .glow{position:absolute;width:180px;height:180px;border-radius:50%;filter:blur(30px);opacity:.35;pointer-events:none}
+  .hero .glow.a{background:var(--accent);top:-60px;right:-40px}
+  .hero .glow.b{background:var(--accent-2);bottom:-70px;left:-50px}
+  .hero-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:8px 4px}
+
+  /* 脉冲环（扫描） */
+  .radar{width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center}
+  .radar .ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(77,141,255,.5);animation:pulse 2.2s ease-out infinite}
+  .radar .ring.r2{animation-delay:.7s}
+  .radar .core{width:64px;height:64px;border-radius:50%;background:var(--card-3);display:flex;align-items:center;justify-content:center}
+  .radar .core svg{width:30px;height:30px}
+  @keyframes pulse{0%{transform:scale(.7);opacity:.8}100%{transform:scale(1.25);opacity:0}}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px}
+  .badge.ok{background:rgba(52,211,153,.12);color:var(--ok)}
+  .badge.blue{background:rgba(77,141,255,.14);color:var(--accent)}
+  .badge.warn{background:rgba(251,191,36,.12);color:var(--warn)}
+
+  /* 设备列表 */
+  .dev{display:flex;align-items:center;gap:12px;background:var(--card-2);border:1px solid var(--stroke);border-radius:var(--r-md);padding:14px;animation:fadeUp .5s ease both}
+  .dev:nth-child(2){animation-delay:.12s}
+  .dev:nth-child(3){animation-delay:.24s}
+  .dev .icon{width:38px;height:38px;border-radius:12px;background:var(--card-3);display:flex;align-items:center;justify-content:center}
+  .dev .icon svg{width:20px;height:20px}
+  .dev .nm{font-size:15px;font-weight:600}
+  .dev .sub{font-size:12px;color:var(--text-3);margin-top:2px}
+  .chev{color:var(--text-3)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* 按钮 */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600;border-radius:14px;padding:13px 16px;border:1px solid transparent;cursor:default}
+  .btn.primary{background:var(--accent);color:#fff}
+  .btn.ghost{background:var(--card-3);color:var(--text-1);border-color:var(--stroke)}
+  .btn.danger-ghost{background:var(--card-2);color:var(--danger);border-color:rgba(248,113,113,.25)}
+  .btn.block{width:100%}
+  .btn.small{padding:9px 12px;font-size:13px;border-radius:12px}
+
+  /* 功能瓦片网格 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .tile{background:var(--card-2);border:1px solid var(--stroke);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:10px;min-height:128px}
+  .tile .t-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--card-3)}
+  .tile .t-icon svg{width:22px;height:22px}
+  .tile .t-title{font-size:15px;font-weight:600}
+  .tile .t-sub{font-size:12px;color:var(--text-3);line-height:1.5}
+  .tile.soon{border-style:dashed;opacity:.65}
+
+  /* 底部导航（预留） */
+  .tabbar{margin-top:auto;display:flex;align-items:center;justify-content:space-around;background:var(--card-1);border:1px solid var(--stroke);border-radius:24px;padding:12px 8px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;color:var(--text-3)}
+  .tab.active{color:var(--text-1)}
+  .tab svg{width:22px;height:22px}
+  .fab{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 10px 20px rgba(77,141,255,.35)}
+  .fab svg{width:22px;height:22px}
+
+  /* 编辑页 */
+  .nav{display:flex;align-items:center;gap:10px;padding-top:18px}
+  .nav .back{width:34px;height:34px;border-radius:12px;background:var(--card-2);display:flex;align-items:center;justify-content:center}
+  .crop{width:100%;aspect-ratio:1/1;border-radius:var(--r-lg);background:linear-gradient(135deg,#3a3f4b,#23252b);position:relative;overflow:hidden;border:1px solid var(--stroke)}
+  .crop .grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:33.33% 33.33%}
+  .crop .frame{position:absolute;inset:14px;border:1px solid rgba(255,255,255,.35);border-radius:10px}
+  .progress{height:8px;border-radius:999px;background:var(--card-3);overflow:hidden}
+  .progress .bar{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .progress.indet .bar{width:40%;animation:slide 1.4s ease-in-out infinite}
+  @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
+  /* 错误态 */
+  .err-icon{width:56px;height:56px;border-radius:18px;background:rgba(248,113,113,.12);display:flex;align-items:center;justify-content:center}
+  .err-icon svg{width:28px;height:28px}
+
+  /* ===== 映射表 ===== */
+  .map{background:var(--card-1);border:1px solid var(--stroke);border-radius:var(--r-lg);overflow:hidden}
+  .map table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .map th,.map td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--stroke)}
+  .map th{color:var(--text-3);font-weight:600;font-size:12px}
+  .map td{color:var(--text-2);line-height:1.6}
+  .map td b{color:var(--text-1)}
+  .map tr:last-child td{border-bottom:none}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--accent)}
+
+  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:16px}
+  .note{background:var(--card-1);border:1px solid var(--stroke);border-radius:var(--r-md);padding:16px}
+  .note h4{font-size:14px;margin-bottom:8px}
+  .note p{font-size:13px;color:var(--text-2);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== 页头 ===== -->
+  <div class="head">
+    <div class="eyebrow">CircleBase · iOS App</div>
+    <h1>界面重构设计稿（深色 · 卡片化 · 可扩展）</h1>
+    <p>功能与 BLE 通信流程保持不变，仅重写视图层。状态全部来自现有 <span class="mono">BleLink</span> / <span class="mono">ImageTransfer</span> 的 <span class="mono">@Published</span> 属性；以下预览中的脉冲、淡入、进度动画在落地时用 SwiftUI 原生动画实现，不引入 Rive / Lottie。</p>
+    <div class="tags">
+      <span class="tag">部署目标 <b>iOS 16.0</b></span>
+      <span class="tag">框架 <b>SwiftUI 纯原生</b></span>
+      <span class="tag">第三方 <b>暂不集成</b></span>
+      <span class="tag">风格 <b>深炭灰 + 蓝紫光晕 + 大圆角卡片</b></span>
+    </div>
+  </div>
+
+  <!-- ===== 设计令牌 ===== -->
+  <div class="section-title">设计令牌（Theme 常量，后续 1:1 写成 SwiftUI Color/CGFloat）</div>
+  <div class="tokens">
+    <div class="token"><div class="sw" style="background:#26282e"></div><div class="k">页面底色</div><div class="v">bg-page</div></div>
+    <div class="token"><div class="sw" style="background:#17181c"></div><div class="k">机身底色</div><div class="v">bg-phone</div></div>
+    <div class="token"><div class="sw" style="background:#2f323a"></div><div class="k">卡片中层</div><div class="v">card-2</div></div>
+    <div class="token"><div class="sw" style="background:#383b44"></div><div class="k">卡片高亮/图标底</div><div class="v">card-3</div></div>
+    <div class="token"><div class="sw" style="background:#4d8dff"></div><div class="k">主强调色</div><div class="v">accent</div></div>
+    <div class="token"><div class="sw" style="background:linear-gradient(135deg,#4d8dff,#7a5cf0)"></div><div class="k">光晕渐变</div><div class="v">accent → accent-2</div></div>
+    <div class="token"><div class="sw" style="background:#34d399"></div><div class="k">成功</div><div class="v">ok</div></div>
+    <div class="token"><div class="sw" style="background:#f87171"></div><div class="k">错误</div><div class="v">danger</div></div>
+  </div>
+
+  <!-- ===== 手机画廊 ===== -->
+  <div class="section-title">当前功能 · 各状态界面</div>
+  <div class="gallery">
+
+    <!-- 1. 扫描中 -->
+    <div class="stage">
+      <div class="label"><b>① 扫描中</b> · state = .scanning / devices 列表</div>
+      <div class="phone">
+        <div class="statusbar-right"><span></span><span></span><span></span></div>
+        <div class="greet row">
+          <div>
+            <div class="hi">HYC · 圆屏配件</div>
+            <div class="name">我的设备</div>
+          </div>
+          <div class="spacer"></div>
+          <div class="avatar">C</div>
+        </div>
+
+        <div class="card hero">
+          <div class="glow a"></div><div class="glow b"></div>
+          <div class="hero-inner">
+            <div class="radar">
+              <div class="ring"></div><div class="ring r2"></div>
+              <div class="core">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#a6adb9" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+              </div>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:16px">正在搜索附近的圆屏</div>
+              <div class="muted" style="margin-top:4px">请保持设备在身旁并开启蓝牙</div>
+            </div>
+            <span class="badge blue">扫描中…</span>
+          </div>
+        </div>
+
+        <div class="dev">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#a6adb9" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg></div>
+          <div><div class="nm">Circle-A3F2</div><div class="sub">信号良好 · 点击连接</div></div>
+          <div class="spacer"></div><span class="chev">›</span>
+        </div>
+        <div class="dev">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="#a6adb9" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg></div>
+          <div><div class="nm">Circle-7B11</div><div class="sub">可连接</div></div>
+          <div class="spacer"></div><span class="chev">›</span>
+        </div>
+
+        <button class="btn ghost block">重新搜索</button>
+      </div>
+    </div>
+
+    <!-- 2. 等待配对 -->
+    <div class="stage">
+      <div class="label"><b>② 等待配对</b> · state = .waitingPair</div>
+      <div class="phone">
+        <div class="statusbar-right"><span></span><span></span><span></span></div>
+        <div class="greet row">
+          <div>
+            <div class="hi">连接设备</div>
+            <div class="name">Circle-A3F2</div>
+          </div>
+        </div>
+
+        <div class="card hero">
+          <div class="glow a"></div>
+          <div class="hero-inner">
+            <div class="radar">
+              <div class="ring"></div>
+              <div class="core" style="background:rgba(77,141,255,.15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4d8dff" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+              </div>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:16px">需要配对验证</div>
+              <div class="muted" style="margin-top:6px;line-height:1.6">请在圆屏上查看 6 位配对码，<br>并在 iPhone 弹窗中输入</div>
+            </div>
+            <span class="badge warn">等待配对码…</span>
+          </div>
+        </div>
+
+        <div class="card-soft">
+          <div class="row"><span class="faint">配对码仅用于本次连接</span><div class="spacer"></div></div>
+        </div>
+        <button class="btn danger-ghost block">取消并重新搜索</button>
+      </div>
+    </div>
+
+    <!-- 3. 已验证（主页 + 功能瓦片） -->
+    <div class="stage">
+      <div class="label"><b>③ 已验证 · 主页</b> · verified = true（功能入口在此扩展）</div>
+      <div class="phone">
+        <div class="statusbar-right"><span></span><span></span><span></span></div>
+        <div class="greet row">
+          <div>
+            <div class="hi">已连接</div>
+            <div class="name">Circle-A3F2</div>
+          </div>
+          <div class="spacer"></div>
+          <span class="badge ok"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>已验证</span>
+        </div>
+
+        <div class="card hero">
+          <div class="glow a"></div><div class="glow b"></div>
+          <div class="hero-inner" style="align-items:flex-start;text-align:left">
+            <div class="row" style="width:100%">
+              <div>
+                <div class="muted">链路状态</div>
+                <div style="font-size:20px;font-weight:700;margin-top:2px">已连接 · 已校时</div>
+              </div>
+              <div class="spacer"></div>
+              <div class="avatar" style="width:46px;height:46px">C</div>
+            </div>
+            <div class="faint">连接成功后已自动同步手机时间；断连后可在此忘记设备。</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="tile">
+            <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#4d8dff" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></div>
+            <div class="t-title">背景图</div>
+            <div class="t-sub">已设置 · 点击更换圆屏桌面</div>
+          </div>
+          <div class="tile soon">
+            <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6f7682" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></div>
+            <div class="t-title">更多功能</div>
+            <div class="t-sub">后续模块以瓦片形式加入此网格</div>
+          </div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>主页</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/></svg>设备</div>
+          <div class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg>消息</div>
+          <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>我的</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 背景图编辑页 -->
+    <div class="stage">
+      <div class="label"><b>④ 背景图编辑</b> · BackgroundImageView（裁剪 + 上传进度）</div>
+      <div class="phone">
+        <div class="statusbar-right"><span></span><span></span><span></span></div>
+        <div class="nav">
+          <div class="back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a6adb9" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></div>
+          <div style="font-weight:600;font-size:17px">背景图</div>
+        </div>
+
+        <div class="card-soft row">
+          <div><div class="faint">圆屏当前状态</div><div style="font-weight:600;margin-top:3px">已设置背景图</div></div>
+          <div class="spacer"></div>
+          <button class="btn ghost small">重新查询</button>
+        </div>
+
+        <div class="crop">
+          <div class="grid-lines"></div>
+          <div class="frame"></div>
+        </div>
+        <div class="faint" style="text-align:center">拖动选择位置，双指缩放 · 输出 466×466</div>
+
+        <button class="btn ghost block">从相册选择图片</button>
+        <button class="btn primary block">上传到圆屏</button>
+
+        <div>
+          <div class="row" style="margin-bottom:8px"><span class="muted">发送中</span><div class="spacer"></div><span class="muted">68%</span></div>
+          <div class="progress"><div class="bar" style="width:68%"></div></div>
+          <div class="faint" style="margin-top:8px">保持 App 在前台并靠近设备，约 8～22 秒完成。</div>
+        </div>
+
+        <button class="btn danger-ghost block small">移除背景图（恢复默认）</button>
+      </div>
+    </div>
+
+    <!-- 5. 错误 / 断开态 -->
+    <div class="stage">
+      <div class="label"><b>⑤ 错误 / 断开</b> · lastError / phase = .failed</div>
+      <div class="phone">
+        <div class="statusbar-right"><span></span><span></span><span></span></div>
+        <div class="greet row"><div><div class="hi">连接异常</div><div class="name">无法继续</div></div></div>
+
+        <div class="card hero">
+          <div class="hero-inner">
+            <div class="err-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.8"><path d="M12 8v5M12 16.5v.01"/><path d="M10.3 3.8L2.6 17a2 2 0 001.7 3h15.4a2 2 0 001.7-3L13.7 3.8a2 2 0 00-3.4 0z"/></svg></div>
+            <div>
+              <div style="font-weight:600;font-size:16px">连接已断开</div>
+              <div class="muted" style="margin-top:6px;line-height:1.6">圆屏校验未通过，请贴近设备后重试。<br>多次失败可忘记设备重新配对。</div>
+            </div>
+            <span class="badge" style="background:rgba(248,113,113,.12);color:var(--danger)">上次失败</span>
+          </div>
+        </div>
+
+        <button class="btn primary block">重试连接</button>
+        <button class="btn ghost block">忘记此设备</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 状态 → 视图映射 ===== -->
+  <div class="section-title">状态到界面的映射（底层流程不变，只换外观）</div>
+  <div class="map">
+    <table>
+      <thead><tr><th>现有状态 / 数据</th><th>界面呈现</th><th>对应现有代码</th></tr></thead>
+      <tbody>
+        <tr><td><b>扫描中</b> · devices 列表</td><td>脉冲雷达英雄卡 + 设备卡片逐条淡入，点击即连接</td><td><span class="mono">BleLink.state == .scanning</span><br><span class="mono">BleLink.devices</span></td></tr>
+        <tr><td><b>等待配对</b></td><td>聚焦态锁形卡片 + 呼吸光环 + 配对码提示</td><td><span class="mono">CircleLinkState.waitingPair</span></td></tr>
+        <tr><td><b>已验证</b></td><td>连接英雄卡（渐变光晕）+ 功能瓦片网格，底部导航预留位</td><td><span class="mono">BleLink.verified / connectedName / caps</span></td></tr>
+        <tr><td><b>背景图状态</b></td><td>瓦片副文案：已设置 / 默认深色 / 未查询</td><td><span class="mono">ImageTransfer.hasBackground</span></td></tr>
+        <tr><td><b>上传进度</b></td><td>进度条 + 百分比；宣告 / 等回执 / 移除用不确定态动画</td><td><span class="mono">ImageTransfer.phase</span></td></tr>
+        <tr><td><b>错误 / 失败</b></td><td>错误英雄卡 + 重试 / 忘记设备按钮，红色状态徽章</td><td><span class="mono">BleLink.lastError</span> · <span class="mono">Phase.failed</span></td></tr>
+        <tr><td><b>蓝牙关闭 / 不支持</b></td><td>对应错误卡变体，引导去系统设置开启蓝牙</td><td><span class="mono">.bluetoothOff / .noBLE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== 可扩展设计说明 ===== -->
+  <div class="section-title">为后续功能预留的结构</div>
+  <div class="notes">
+    <div class="note">
+      <h4>功能瓦片网格</h4>
+      <p>主页用 2 列瓦片承接所有新模块（表盘、传感器、设置等）。新功能只需新增一个瓦片配置（图标 / 标题 / 副文案 / 目标页面），不改主页骨架；瓦片支持「即将上线」的虚线占位态。</p>
+    </div>
+    <div class="note">
+      <h4>集中式 Theme 令牌</h4>
+      <p>颜色、圆角、间距、字号全部收敛到一个 <span class="mono">Theme</span> 常量文件，落地时对应 SwiftUI 的 <span class="mono">Color</span> / <span class="mono">CGFloat</span>。后续换肤、深色微调只改一处，不散落各视图。</p>
+    </div>
+    <div class="note">
+      <h4>导航预留</h4>
+      <p>底部导航先占位（主页 / 设备 / 中央 + / 消息 / 我的），中央悬浮按钮留作快速入口。当前只有两页，导航可在功能增多后再启用，不影响现有流程。</p>
+    </div>
+    <div class="note">
+      <h4>动画与反馈边界</h4>
+      <p>全部使用 SwiftUI 原生：<span class="mono">withAnimation(.spring(...))</span>、<span class="mono">transition</span>、进度条插值；关键操作（配对成功、上传完成、失败）接 <span class="mono">UINotificationFeedbackGenerator</span> 触觉反馈。iOS 16 不可用的 API 不使用。</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

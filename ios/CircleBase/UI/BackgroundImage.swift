@@ -8,8 +8,7 @@ import UIKit        /* UIImage / UIGraphicsImageRenderer：不依赖 SwiftUI 传
 /// → 1:1 手动裁剪（拖动选位置、双指缩放，所见=输出）
 /// → 导出 466×466 JPEG 并压到 ≤88KB（板端上限 96KB），交给 ImageTransfer 走 bulk 上传。
 ///
-/// 尺寸/比例的三重保证：裁剪视口是正方形、导出强制 466×466、
-/// 固件 `#IMG` 再硬校验一次 466×466（协议 §5.4），错不了。
+/// 本次重构仅调整视图外观（深色卡片化）；选图、裁剪数学、导出压缩、分片状态机逻辑保持不变。
 struct BackgroundImageView: View {
     @ObservedObject private var ble = BleLink.shared
     @ObservedObject private var xfer = ImageTransfer.shared
@@ -27,60 +26,68 @@ struct BackgroundImageView: View {
     private let outSide: CGFloat = 466           // 与面板 1:1
 
     var body: some View {
-        List {
-            Section("圆屏当前状态") {
-                LabeledContent("背景图", value: statusText)
-                Button("重新查询") { xfer.refreshStatus() }
-                    .disabled(!ble.verified || xfer.isBusy)
-                Button {
-                    xfer.clear()
-                } label: {
-                    Label("移除背景图（恢复默认）", systemImage: "paintbrush.slash")
-                        .foregroundStyle(.red)
-                }
-                .disabled(blockReason != nil || xfer.hasBackground != true)
-            }
+        ZStack {
+            Theme.Color.bgPhone.ignoresSafeArea()
 
-            Section("选择并裁剪") {
-                if let src = source {
-                    cropView(src)
-                    Text("拖动图片选择位置，双指缩放。裁框固定 1:1，输出 466×466。")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                PhotosPicker(selection: $pickerItem, matching: .images) {
-                    /* 先接成 String 常量：直接写三元字面量会在 Label 的
-                       LocalizedStringKey / StringProtocol 两个重载之间报歧义 */
-                    let title = source == nil ? "从相册选择图片" : "换一张"
-                    Label(title, systemImage: "photo.on.rectangle.angled")
-                }
-                .disabled(xfer.isBusy)
-                if !pickError.isEmpty {
-                    Text(pickError).font(.footnote).foregroundStyle(.red)
-                }
-            }
+            ScrollView {
+                VStack(spacing: Theme.Space.md) {
+                    statusCard
 
-            Section {
-                Button {
-                    upload()
-                } label: {
-                    HStack {
-                        Image(systemName: "arrow.up.circle.fill")
-                        Text(xfer.isBusy ? "传输中…" : "上传到圆屏")
+                    if let src = source {
+                        AppCard {
+                            cropView(src)
+                        }
+                        Text("拖动图片选择位置，双指缩放。裁框固定 1:1，输出 466×466。")
+                            .font(.footnote)
+                            .foregroundColor(Theme.Color.text3)
+                            .frame(maxWidth: .infinity, alignment: .center)
                     }
-                }
-                .disabled(source == nil || blockReason != nil)
 
-                if let reason = blockReason, source != nil {
-                    Text(reason).font(.footnote).foregroundStyle(.orange)
+                    PhotosPicker(selection: $pickerItem, matching: .images) {
+                        let title = source == nil ? "从相册选择图片" : "换一张"
+                        AppButtonLabel(title, systemImage: "photo.on.rectangle.angled",
+                                       style: .ghost, disabled: xfer.isBusy)
+                    }
+                    .disabled(xfer.isBusy)
+
+                    AppButton(xfer.isBusy ? "传输中…" : "上传到圆屏",
+                              systemImage: "arrow.up.circle.fill",
+                              style: .primary,
+                              disabled: source == nil || blockReason != nil) {
+                        upload()
+                    }
+
+                    if let reason = blockReason, source != nil {
+                        Text(reason)
+                            .font(.footnote)
+                            .foregroundColor(Theme.Color.warn)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    transferProgress
+
+                    if !pickError.isEmpty {
+                        Text(pickError)
+                            .font(.footnote)
+                            .foregroundColor(Theme.Color.danger)
+                    }
+
+                    AppButton("移除背景图（恢复默认）",
+                              systemImage: "paintbrush.slash",
+                              style: .dangerGhost,
+                              disabled: blockReason != nil || xfer.hasBackground != true) {
+                        xfer.clear()
+                    }
+
+                    Text("88KB 目标体积下约 600 片，实测需要 8～22 秒，请保持 App 在前台并靠近设备。")
+                        .font(.footnote)
+                        .foregroundColor(Theme.Color.text3)
                 }
-                transferProgress
-            } footer: {
-                Text("88KB 目标体积下约 600 片，实测需要 8～22 秒，请保持 App 在前台并靠近设备。")
-                    .font(.footnote)
+                .padding(Theme.Space.md)
             }
         }
         .navigationTitle("背景图")
+        .preferredColorScheme(.dark)
         .onAppear { xfer.refreshStatus() }
         .onChange(of: pickerItem) { item in
             guard let item = item else { return }
@@ -105,6 +112,31 @@ struct BackgroundImageView: View {
 
     // MARK: - 子视图
 
+    /// 板上状态卡片。
+    private var statusCard: some View {
+        AppRow {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("圆屏当前状态")
+                        .font(.footnote)
+                        .foregroundColor(Theme.Color.text3)
+                    Text(statusText)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(Theme.Color.text1)
+                }
+                Spacer()
+                Button {
+                    xfer.refreshStatus()
+                } label: {
+                    Text("重新查询")
+                        .font(.footnote)
+                        .foregroundColor(Theme.Color.accent)
+                }
+                .disabled(!ble.verified || xfer.isBusy)
+            }
+        }
+    }
+
     /// 方形裁剪视口：底图 aspect-fill 后按 k 缩放、按 t 平移，再裁成正方形。
     /// 预览用的边长与导出用的边长是同一个 cropSide()，所以“所见 = 输出”不会漂。
     @ViewBuilder private func cropView(_ src: UIImage) -> some View {
@@ -116,33 +148,77 @@ struct BackgroundImageView: View {
             .offset(clamped(offset, side: side))
             .frame(width: side, height: side)
             .clipped()
+            .overlay(cropGrid)
             .overlay(Rectangle().stroke(.white.opacity(0.35), lineWidth: 1))
             .contentShape(Rectangle())
             .gesture(dragGesture(side: side))
             .simultaneousGesture(zoomGesture(side: side))
             .frame(maxWidth: .infinity)
-            .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+    }
+
+    /// 裁剪九宫格参考线。
+    private var cropGrid: some View {
+        ZStack {
+            HStack {
+                Spacer(); Rectangle().fill(.white.opacity(0.08)).frame(width: 1); Spacer()
+                Rectangle().fill(.white.opacity(0.08)).frame(width: 1); Spacer()
+            }
+            VStack {
+                Spacer(); Rectangle().fill(.white.opacity(0.08)).frame(height: 1); Spacer()
+                Rectangle().fill(.white.opacity(0.08)).frame(height: 1); Spacer()
+            }
+        }
     }
 
     @ViewBuilder private var transferProgress: some View {
         switch xfer.phase {
         case .sending(let p):
-            VStack(alignment: .leading, spacing: 6) {
-                ProgressView(value: p)
-                Text("发送中 \(Int(p * 100))%").font(.footnote).foregroundStyle(.secondary)
+            AppRow {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("发送中")
+                            .font(.footnote)
+                            .foregroundColor(Theme.Color.text2)
+                        Spacer()
+                        Text("\(Int(p * 100))%")
+                            .font(.footnote)
+                            .foregroundColor(Theme.Color.text2)
+                    }
+                    progressBar(p)
+                }
             }
         case .announcing, .waitingAck, .clearing:
-            HStack(spacing: 8) {
-                ProgressView().controlSize(.small)
-                Text(waitingText).font(.footnote).foregroundStyle(.secondary)
+            AppRow {
+                HStack(spacing: 8) {
+                    ProgressView().controlSize(.small)
+                    Text(waitingText)
+                        .font(.footnote)
+                        .foregroundColor(Theme.Color.text2)
+                }
             }
         case .done(let text):
-            Label(text, systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+            Label(text, systemImage: "checkmark.circle.fill")
+                .foregroundColor(Theme.Color.ok)
         case .failed(let text):
-            Label(text, systemImage: "xmark.circle.fill").foregroundStyle(.red)
+            Label(text, systemImage: "xmark.circle.fill")
+                .foregroundColor(Theme.Color.danger)
         case .idle:
             EmptyView()
         }
+    }
+
+    private func progressBar(_ p: Double) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Theme.Color.card3)
+                Capsule()
+                    .fill(LinearGradient(
+                        colors: [Theme.Color.accent, Theme.Color.accent2],
+                        startPoint: .leading, endPoint: .trailing))
+                    .frame(width: geo.size.width * p)
+            }
+        }
+        .frame(height: 8)
     }
 
     private var waitingText: String {
