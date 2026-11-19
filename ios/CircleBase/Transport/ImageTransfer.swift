@@ -71,7 +71,7 @@ final class ImageTransfer: ObservableObject {
 
     // MARK: - 对外动作
 
-    /// 上传 466×466 JPEG（调用方负责压缩到 ≤60KB）。
+    /// 上传 466×466 JPEG（调用方负责压缩到 ≤88KB，板端硬上限 96KB）。
     func start(jpeg data: Data) {
         guard readyToTransfer() == nil else { return }
         guard data.count > 0, data.count <= boardMaxBytes else {

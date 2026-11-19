@@ -6,7 +6,7 @@ import UIKit        /* UIImage / UIGraphicsImageRenderer：不依赖 SwiftUI 传
 ///
 /// 三步一条线：相册选图（PhotosPicker，系统代理，无需相册权限声明）
 /// → 1:1 手动裁剪（拖动选位置、双指缩放，所见=输出）
-/// → 导出 466×466 JPEG 并压到 ≤60KB，交给 ImageTransfer 走 bulk 上传。
+/// → 导出 466×466 JPEG 并压到 ≤88KB（板端上限 96KB），交给 ImageTransfer 走 bulk 上传。
 ///
 /// 尺寸/比例的三重保证：裁剪视口是正方形、导出强制 466×466、
 /// 固件 `#IMG` 再硬校验一次 466×466（协议 §5.4），错不了。
@@ -22,7 +22,7 @@ struct BackgroundImageView: View {
     @State private var baseOffset: CGSize = .zero
     @State private var pickError = ""
 
-    private let targetBytes = 60 * 1024          // D2：压缩目标
+    private let targetBytes = 88 * 1024          // A 方案：压缩目标抬到 88KB（仍 < 板端 96KB 上限）
     private let boardMaxBytes = 96 * 1024        // 固件接收上限
     private let outSide: CGFloat = 466           // 与面板 1:1
 
@@ -76,7 +76,7 @@ struct BackgroundImageView: View {
                 }
                 transferProgress
             } footer: {
-                Text("60KB 目标体积下约 400 片，实测需要 5～15 秒，请保持 App 在前台并靠近设备。")
+                Text("88KB 目标体积下约 600 片，实测需要 8～22 秒，请保持 App 在前台并靠近设备。")
                     .font(.footnote)
             }
         }
@@ -258,13 +258,13 @@ struct BackgroundImageView: View {
                                          format: fmt).image { _ in
             UIImage(cgImage: cropped).draw(in: CGRect(x: 0, y: 0, width: outSide, height: outSide))
         }
-        // D2：0.92 起步，每次 −0.06，直到 ≤60KB
-        var q: CGFloat = 0.92
-        while q > 0.30 {
+        // A 方案：0.95 起步，每次 −0.05，直到 ≤88KB；地板质 0.5（466×466 在 0.5 下必 <96KB）
+        var q: CGFloat = 0.95
+        while q > 0.50 {
             if let d = out.jpegData(compressionQuality: q), d.count <= targetBytes { return d }
-            q -= 0.06
+            q -= 0.05
         }
-        return out.jpegData(compressionQuality: 0.3)
+        return out.jpegData(compressionQuality: 0.5)
     }
 
     /// 抹掉 EXIF 方向并把像素尺寸与 size 对齐，后面的裁剪数学才干净。
