@@ -6,6 +6,7 @@ import CoreBluetooth
 struct ContentView: View {
     @ObservedObject private var ble = BleLink.shared
     @ObservedObject private var xfer = ImageTransfer.shared
+    @ObservedObject private var wifi = WifiManager.shared
 
     var body: some View {
         NavigationStack {
@@ -321,8 +322,33 @@ struct ContentView: View {
             }
             .buttonStyle(.plain)
 
+            if ble.caps.contains("WIFI") {
+                NavigationLink {
+                    WifiSetupView()
+                } label: {
+                    FeatureTile(icon: "wifi.fill", title: "Wi-Fi 配网",
+                                subtitle: wifiTileSummary, soon: false)
+                }
+                .buttonStyle(.plain)
+            } else {
+                FeatureTile(icon: "wifi", title: "Wi-Fi 配网",
+                            subtitle: "等待设备能力宣告", soon: true)
+            }
+
             FeatureTile(icon: "plus", title: "更多功能",
                         subtitle: "后续模块以瓦片形式加入此网格", soon: true)
+        }
+    }
+
+    /// Wi-Fi 瓦片摘要：跟随 WifiManager 阶段变化。
+    private var wifiTileSummary: String {
+        switch wifi.phase {
+        case .scanning:               return "扫描中…"
+        case .connecting:             return "连接中…"
+        case .connected:              return "已连接"
+        case .failed:                 return "上次失败"
+        case .listReady:              return wifi.aps.isEmpty ? "未发现网络" : "发现 \(wifi.aps.count) 个网络"
+        case .idle:                   return "扫描并连接网络"
         }
     }
 

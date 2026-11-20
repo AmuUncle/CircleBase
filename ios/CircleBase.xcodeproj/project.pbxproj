@@ -15,6 +15,8 @@
 		1A00000000000000000000CA /* ImageTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BA /* ImageTransfer.swift */; };
 		1A00000000000000000000CB /* BackgroundImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BB /* BackgroundImage.swift */; };
 		1A00000000000000000000CD /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BD /* Theme.swift */; };
+		1A00000000000000000000CE /* WifiManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BE /* WifiManager.swift */; };
+		1A00000000000000000000CF /* WifiSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00000000000000000000BF /* WifiSetupView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 		1A00000000000000000000BA /* ImageTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTransfer.swift; sourceTree = "<group>"; };
 		1A00000000000000000000BB /* BackgroundImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundImage.swift; sourceTree = "<group>"; };
 		1A00000000000000000000BD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		1A00000000000000000000BE /* WifiManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiManager.swift; sourceTree = "<group>"; };
+		1A00000000000000000000BF /* WifiSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiSetupView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +72,7 @@
 				1A00000000000000000000B2 /* BleLink.swift */,
 				1A00000000000000000000BA /* ImageTransfer.swift */,
 				1A00000000000000000000B4 /* PhoneClockSync.swift */,
+				1A00000000000000000000BE /* WifiManager.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -78,6 +83,7 @@
 				1A00000000000000000000B3 /* ContentView.swift */,
 				1A00000000000000000000BB /* BackgroundImage.swift */,
 				1A00000000000000000000BD /* Theme.swift */,
+				1A00000000000000000000BF /* WifiSetupView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -174,6 +180,8 @@
 				1A00000000000000000000CA /* ImageTransfer.swift in Sources */,
 				1A00000000000000000000CB /* BackgroundImage.swift in Sources */,
 				1A00000000000000000000CD /* Theme.swift in Sources */,
+				1A00000000000000000000CE /* WifiManager.swift in Sources */,
+				1A00000000000000000000CF /* WifiSetupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

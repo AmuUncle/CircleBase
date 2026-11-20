@@ -324,5 +324,9 @@ extension BleLink: CBPeripheralDelegate {
             || message.hasPrefix("#IMG") {
             ImageTransfer.shared.handleBoardMessage(message)
         }
+        // #WIFI* 配网族（#WIFISCAN 回执 / #WIFIL* 扫描列表 / #WIFIS 状态）→ WifiManager（PLAN-020）
+        if message.hasPrefix("#WIFI") {
+            WifiManager.shared.handleBoardMessage(message)
+        }
     }
 }
